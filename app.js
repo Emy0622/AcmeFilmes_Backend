@@ -1,4 +1,4 @@
-// Para fazer as integracoes com o banco de dados, precisamos ultilizar uma dependencia
+// Para fazer as integrações com o banco de dados, precisamos ultilizar uma dependencia
 // SEQUELIZE    ORM
 // PRISMA       ORM
 // FASTFY       ORM
@@ -27,14 +27,14 @@ app.use((request, response, next) => {
     next()
 })
 
-// cria um obejeto fo tipo json para receber dados via body nas requisições post ou put
+// cria um objeto do tipo json para receber dados via body nas requisições post ou put
 const bodyParserJSON = bodyParser.json()
 
-//imports de arquivos e bibliotecas do projeto
+//importação de arquivos e bibliotecas do projeto
 
 const controllerFilmes = require('./controller/controller_filme.js')
 
-// ----------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
 
 
 app.get('/v1/acme/filmes', cors(), function(request, response, next) {
@@ -70,7 +70,7 @@ app.listen(8080, function() {
 
 app.get('/v2/acme/filme/:id', cors(), async function(request, response, next) {
 
-    // RECEBE A RRQUISIÇÃO DO ID
+    // recebe as requisições por id
     let idFilme = request.params.id
 
     let dadosFilmesPorID = await controllerFilmes.getBuscarFilme(idFilme);
@@ -78,20 +78,40 @@ app.get('/v2/acme/filme/:id', cors(), async function(request, response, next) {
     response.json(dadosFilmesPorID)
 })
 
-// endpint par ainserir novos filmes do banco de dados
-// NAO ESQUECER DE COLOCAR O BODY PARSER JSON, QUE É QUEM DEFINE O FORMATO DE CHEGADA DOS DADOS
-// ESSE OBJETO FOI CRIADO NO INICIO DO PROJETO
+// endpint para inserir novos filmes do BD
+// NÃO ESQUECER DE COLOCAR O BODY PARSER JSON, ELE É QUEM DEFINE O FORMATO DA CHEGADA DOS DADOS
+
+//esse objeto foi criado no inicio do projeto
 app.post('/v2/acmefilmes/filme/', cors(), bodyParserJSON, async function(request, response, next) {
 
     let contentType = request.headers['content-type'];
 
-
-    // recebe os dados encaminhados na requisição do body (json)
+    // recebe os dados encaminhados na requisição do body(json)
     let dadosBody = request.body;
 
-    let resultDados = await controllerFilmes.setInserirNovoFilme (dadosBody, contentType)
+    let resultDados = await controllerFilmes.setInserirNovoFilme(dadosBody, contentType)
 
     response.status(resultDados.status_code)
     response.json(resultDados)
 
 })
+
+app.delete('/v3/acme/filme/delete/:id', cors(), async function(request, response, next) {
+
+    //recebe a requisição do id
+    let idFilme = request.params.id
+
+    let deleteFilmesbyID = await controllerFilmes.setExcluirFilme(idFilme);
+    response.status(deleteFilmesbyID.status_code)
+    response.json(deleteFilmesbyID)
+})
+
+// app.get('/v2/acme/filme/:id', cors(), async function(request, response, next) {
+
+//     // recebe a requisição do id
+//     let idFilme = request.params.id
+
+//     let dadosFilmesPorID = await controllerFilmes.getBuscarFilme(idFilme);
+//     response.status(dadosFilmesPorID.status_code)
+//     response.json(dadosFilmesPorID)
+// })

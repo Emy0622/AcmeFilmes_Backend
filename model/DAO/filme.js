@@ -1,9 +1,11 @@
+/******************************************************************************************
 // Objetivo: Criar a interação do banco de dados MySql para fazer o CRUD de Filmes
 // Data: 30-01-24
-// Autor: Eduardo Goncalves
+// Autor: Yasmin Targino
 // Versao: 1.0.1.24
+ *****************************************************************************************/
 
-// import das funcoes que estão em outro arq
+// import das funções que estão em outro arquivo
 var funcoesParaUso = require('../../controller/funcoes.js')
 
 // inserir um novo filme
@@ -11,12 +13,12 @@ var funcoesParaUso = require('../../controller/funcoes.js')
 // import da biblioteca do Prisma Client
 const { PrismaClient } = require('@prisma/client')
 
-// istanciando o objeto prisma com as caracterisyicas do prisma client
+// instanciando o objeto prisma com as caracteristicas do prisma client
 const prisma = new PrismaClient()
 
 const insertFilme = async function(dadosFilme) {
 
-    // script sql para inserir no banco de dados
+    // script sql para inserir no BD
     try {
 
         let sql;
@@ -62,10 +64,11 @@ const insertFilme = async function(dadosFilme) {
 
         console.log(funcoesParaUso.pegarIdBD())
 
-        // executa o cript sql no banco de dados OBS: DEVEMOS USAR O COMANDO {[( EXECUTE )]} E NÃO O QUERY
+        // executa o script sql no BD 
+        // OBS:É PRECIO USAR O COMANDO: {[( EXECUTE )]} E NÃO O QUERY
         let result = await prisma.$executeRawUnsafe(sql)
 
-        // validação para verificar se o insert funcionou no banco de dados
+        //validação para ver se o insert funcionou no BD
         if (result)
             return true
         else
@@ -77,24 +80,37 @@ const insertFilme = async function(dadosFilme) {
     }
 }
 
-// atualizar um filme filrando por id
+// atualizar um filme filtrando ele por id
 const updateFilme = async function(id) {
 
 }
 
-// deletar um filme filtrando por id
+// deletar um filme filtrando ele por id
 const deleteFilme = async function(id) {
+    try {
 
+        // sql script para listar os filmes por id
+        let sql = `DELETE * FROM tbl_filme WHERE id =${id}`
+
+        // $queryRawUnsafe(sql) -> encaminha só a variável
+        // $queryRaw('SELECT * FROM tbl_filme') -> encaminha o script
+
+        let rsFilmes = await prisma.$queryRawUnsafe(sql)
+
+        return rsFilmes
+    } catch (error) {
+        return false
+    }
 }
 
-// listar todos os filmes existentes na tabela
+// listar todos os filmes que existem na tabela
 const selectAllFilmes = async function() {
 
-    // sql script para listar todos os filmes existentes
+    // sql script para listar tds os filmes que existem
     let sql = 'SELECT * FROM tbl_filme ORDER BY id DESC'
 
-    // $queryRawUnsafe(sql) --- encaminha apenas a variável
-    // $queryRaw('SELECT * FROM tbl_filme') --- encaminha o script
+    // $queryRawUnsafe(sql) -> encaminha apenas a variável
+    // $queryRaw('SELECT * FROM tbl_filme') -> encaminha o script
 
     let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
@@ -114,8 +130,8 @@ const selectByIdFilme = async function(id) {
         // sql script para listar os filmes por id
         let sql = `SELECT * FROM tbl_filme WHERE id =${id}`
 
-        // $queryRawUnsafe(sql) --- encaminha apenas a variável
-        // $queryRaw('SELECT * FROM tbl_filme') --- encaminha o script
+        // $queryRawUnsafe(sql) -> encaminha apenas a variável
+        // $queryRaw('SELECT * FROM tbl_filme') -> encaminha o script
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 

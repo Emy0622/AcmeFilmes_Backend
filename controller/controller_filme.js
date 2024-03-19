@@ -4,15 +4,16 @@
  * Data: 30/01/2024
  * Versão: 1.0.1.24
  *****************************************************************************************/
-//import do arquivo de configuração do projeto 
+
+//import do arquivo de configuração do projeto
 const message = require('../modulo/config.js');
 
 const { filmes } = require("../model/filmes")
 
-// import do arq DAO para manipular dados do banco de dados
+// import do arquivo DAO para manipular dados do banco de dados
 const filmesDAO = require('../model/DAO/filme.js')
 
-// funcao para inserir um novo filme do banco de dados
+// função para inserir um novo filme do banco de dados
 
 const setInserirNovoFilme = async function(dadosFilme, contentType) {
 
@@ -34,27 +35,26 @@ const setInserirNovoFilme = async function(dadosFilme, contentType) {
 
             ) {
                 //mensagem de erro
-                return message.ERROR_REQUIRED_FIELDS; //400 CAMPOS OBRIGATÓRIOS / INCORRETOS
+                return message.ERROR_REQUIRED_FIELDS; // 400 campos obrigatorios/incorretos
 
             } else {
                 //Validação para chamar o DAO para inserir os dados
                 let dadosValidated = false;
 
-                //verificação para data de relançamento que não é campo obrigatório
-
-                //Variavel pra validar se poderemos chamar o DAO para inserir os dados
+                //Verificação para data de relançamento que não é campo obrigatório
+                //Variavel pra validar se iremos poder chamar o DAO para inserir os dados
 
                 if (dadosFilme.data_lancamento != undefined && null && "") {
                     if (dadosFilme.data_relancamento.length != 10) {
-                        return message.ERROR_REQUIRED_FIELDS; //400 campos obrigatorios 
+                        return message.ERROR_REQUIRED_FIELDS; //400 campos obrigatórios 
                     } else {
 
-                        dadosValidated = true // se a data estiver exatamente 10 caracteres
+                        dadosValidated = true // se a data tiver exatamente 10 carac
                     }
 
                 } else {
 
-                    dadosValidated = true //Se a data não existir nos dados
+                    dadosValidated = true // se a data não existir nos dados
                 }
 
                 if (dadosValidated) {
@@ -89,14 +89,43 @@ const setInserirNovoFilme = async function(dadosFilme, contentType) {
     }
 }
 
-// funcao para atualizar um filme do banco de dados
+// funcao para atualizar um filme do BD
 const setAtualizarFilme = async function() {
 
 }
 
-// funcao para excluir um filme do banco de dados
+// funcao para excluir um filme do BD
 const setExcluirFilme = async function(id) {
 
+    // recebe o id do filme
+    let idFilme = id
+    let filmeJSON = {}
+
+    // validação para id vazio, indefinido ou nao numerico
+    if (idFilme == '' || idFilme == undefined || isNaN(idFilme)) {
+        return message.ERROR_INVALID_ID
+    } else {
+
+        // chama a função do dao para retornar dados no bd
+        let deleteFilme = await filmesDAO.deleteFilme(idFilme)
+
+        // ve se os dados no servidor de banco foram processados
+        if (deleteFilme) {
+
+            // validaCão para verificar se existem dados a serem processados
+            if (deleteFilme.length > 0) {
+                // montando o json para retornar para o app
+                filmeJSON.filmes = deleteFilme
+                filmeJSON.status_code = 404
+                return ERROR_NOT_FOUND
+            } else {
+                return message.ERROR_NOT_FOUND //400
+            }
+
+        } else {
+            return message.ERROR_INTERNAL_SERVER_DB //500
+        }
+    }
 }
 
 // funcao para retornar todos os filmes do banco de dados
@@ -105,7 +134,7 @@ const getListarFilmes = async function() {
     //criar uma variavel do tipo json
     let filmesJSON = {};
 
-    //chama  a função do DAO para buscar
+    //chama a função do DAO para buscar
     let dadosFilmes = await filmesDAO.selectAllFilmes();
 
     if (dadosFilmes) {
@@ -121,7 +150,7 @@ const getListarFilmes = async function() {
 
 }
 
-// funcao para buscar um filme do banco de dados pelo id
+// funcao para buscar um filme do BD pelo id
 const getBuscarFilme = async function(id) {
 
     // recebe o id do filme
