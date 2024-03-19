@@ -14,68 +14,80 @@ const filmesDAO = require('../model/DAO/filme.js')
 
 // funcao para inserir um novo filme do banco de dados
 
-const setInserirNovoFilme = async function(dadosFilme) {
+const setInserirNovoFilme = async function(dadosFilme, contentType) {
 
-    let resultDadosFilme = {}
+    try {
 
-    console.log(dadosFilme)
-    if (dadosFilme.nome == '' ||  dadosFilme.nome == underfined || dadosFilme.nome.length > 80 || 
-        dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.sinopse.length > 65000 ||
-         dadosFilme.duracao == '' || dadosFilme.duracao == undefined || dadosFilme.duracao.length > 8 ||
-         dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined || dadosFilme.sinopse.data_lancamento > 10 ||
-         dadosFilme.data_relancamento > 10 ||
-         dadosFilme.foto_capa == '' || dadosFilme.foto_capa == undefined || dadosFilme.foto_capa.length > 200 ||
-         dadosFilme.valor_unitario.length > 8 
+        if (String(contentType).toLowerCase() == 'application/json') {
 
-        ) {
-            //mensagem de erro
-            return message.ERROR_REQUIRED_FIELDS; //400 CAMPOS OBRIGATÓRIOS / INCORRETOS
-        
-    } else {
-//Validação para chamar o DAO para inserir os dados
-        let dadosValidated = false;
 
-        //verificação para data de relançamento que não é campo obrigatório
+            let resultDadosFilme = {}
 
-        //Variavel pra validar se poderemos chamar o DAO para inserir os dados
+            console.log(dadosFilme)
+            if (dadosFilme.nome == '' || dadosFilme.nome == underfined || dadosFilme.nome.length > 80 ||
+                dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.sinopse.length > 65000 ||
+                dadosFilme.duracao == '' || dadosFilme.duracao == undefined || dadosFilme.duracao.length > 8 ||
+                dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined || dadosFilme.sinopse.data_lancamento > 10 ||
+                dadosFilme.data_relancamento > 10 ||
+                dadosFilme.foto_capa == '' || dadosFilme.foto_capa == undefined || dadosFilme.foto_capa.length > 200 ||
+                dadosFilme.valor_unitario.length > 8
 
-        if (dadosFilme.data_lancamento != undefined && null && ""){
-            if(dadosFilme.data_relancamento.length != 10)
-            return message.ERROR_REQUIRED_FIELDS; //400 campos obrigatorios 
-        else 
+            ) {
+                //mensagem de erro
+                return message.ERROR_REQUIRED_FIELDS; //400 CAMPOS OBRIGATÓRIOS / INCORRETOS
 
-        dadosValidated = true // se a data estiver exatamente 10 caracteres
+            } else {
+                //Validação para chamar o DAO para inserir os dados
+                let dadosValidated = false;
 
-        }else{
+                //verificação para data de relançamento que não é campo obrigatório
 
-            dadosValidated = true //Se a data não existir nos dados
+                //Variavel pra validar se poderemos chamar o DAO para inserir os dados
+
+                if (dadosFilme.data_lancamento != undefined && null && "") {
+                    if (dadosFilme.data_relancamento.length != 10) {
+                        return message.ERROR_REQUIRED_FIELDS; //400 campos obrigatorios 
+                    } else {
+
+                        dadosValidated = true // se a data estiver exatamente 10 caracteres
+                    }
+
+                } else {
+
+                    dadosValidated = true //Se a data não existir nos dados
+                }
+
+                if (dadosValidated) {
+
+                    let novofilme = await filmesDAO.insertFilme(dadosFilme);
+
+
+                    //validação para verificar se os dados foram inseridos pelo DAO no BD
+                    if (novofilme) {
+
+                        //Cria o padrão JSON para retorno dos dados criados no BD
+                        resultDadosFilme.status = message.SUCESS_CREATED_ITEM.status;
+                        resultDadosFilme.status_code = message.SUCESS_CREATED_ITEM.status_code;
+                        resultDadosFilme.message = message.SUCESS_CREATED_ITEM.message;
+                        resultDadosFilme.filme = dadosFilme;
+
+                        return resultDadosFilme; //201
+
+                    } else {
+                        return message.ERROR_TERMINAL_SERVER_DB //500 erro na camada do DAO
+                    }
+
+                }
+
+            }
+
+        } else {
+            return message.ERROR_CONTENT_TYPE
         }
-   
-        if(dadosValidated) {
-
-        let novofilme = await filmesDAO.insertFilme(dadosFilme);
-
-
-        //validação para verificar se os dados foram inseridos pelo DAO no BD
-        if(novofilme){
-            //Cria o padrão JSON para retorno dos dados criados no BD
-        resultDadosFilme.status = message.SUCESS_CREATED_ITEM.status;
-        resultDadosFilme.status_code = message.SUCESS_CREATED_ITEM.status_code;
-        resultDadosFilme.message = message.SUCESS_CREATED_ITEM.message;
-        resultDadosFilme.filme = dadosFilme;
-
-        return resultDadosFilme; //201
-        
-        }else{
-            return message.ERROR_TERMINAL_SERVER_DB//500 erro na camada do DAO
-        }
-
-    
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
     }
-
 }
-}
-
 
 // funcao para atualizar um filme do banco de dados
 const setAtualizarFilme = async function() {
@@ -96,16 +108,16 @@ const getListarFilmes = async function() {
     //chama  a função do DAO para buscar
     let dadosFilmes = await filmesDAO.selectAllFilmes();
 
-    if(dadosFilmes){
+    if (dadosFilmes) {
         filmesJSON.filmes = dadosFilmes;
         filmesJSON.quantidade = dadosFilmes.length;
         filmesJSON.status_code = 200
         return filmesJSON;
 
-    }else{
+    } else {
         return false;
     }
-    
+
 
 }
 
@@ -136,15 +148,12 @@ const getBuscarFilme = async function(id) {
             } else {
                 return message.ERROR_NOT_FOUND //400
             }
+
         } else {
             return message.ERROR_INTERNAL_SERVER_DB //500
         }
     }
-
 }
-
-
-
 module.exports = {
     setAtualizarFilme,
     setInserirNovoFilme,
@@ -152,4 +161,3 @@ module.exports = {
     getBuscarFilme,
     getListarFilmes
 }
-    

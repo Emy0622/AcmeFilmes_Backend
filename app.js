@@ -83,10 +83,13 @@ app.get('/v2/acme/filme/:id', cors(), async function(request, response, next) {
 // ESSE OBJETO FOI CRIADO NO INICIO DO PROJETO
 app.post('/v2/acmefilmes/filme/', cors(), bodyParserJSON, async function(request, response, next) {
 
-    // recebe os dados encaminhados na requisição do body (json)
-    let dadosBody = request.body
+    let contentType = request.headers['content-type'];
 
-    let resultDados = await controllerFilmes.setInserirNovoFilme(dadosBody)
+
+    // recebe os dados encaminhados na requisição do body (json)
+    let dadosBody = request.body;
+
+    let resultDados = await controllerFilmes.setInserirNovoFilme (dadosBody, contentType)
 
     response.status(resultDados.status_code)
     response.json(resultDados)
