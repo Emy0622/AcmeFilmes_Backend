@@ -107,15 +107,15 @@ const setExcluirFilme = async function(id) {
     } else {
 
         // chama a função do dao para retornar dados no bd
-        let deleteFilme = await filmesDAO.deleteFilme(idFilme)
+        let deleteFilmePorId = await filmesDAO.deleteFilme(idFilme)
 
         // ve se os dados no servidor de banco foram processados
-        if (deleteFilme) {
+        if (deleteFilmePorId) {
 
             // validaCão para verificar se existem dados a serem processados
-            if (deleteFilme.length > 0) {
+            if (deleteFilmePorId.length > 0) {
                 // montando o json para retornar para o app
-                filmeJSON.filmes = deleteFilme
+                filmeJSON.filmes = deleteFilmePorId
                 filmeJSON.status_code = 404
                 return ERROR_NOT_FOUND
             } else {

@@ -65,7 +65,7 @@ const insertFilme = async function(dadosFilme) {
         console.log(funcoesParaUso.pegarIdBD())
 
         // executa o script sql no BD 
-        // OBS:É PRECIO USAR O COMANDO: {[( EXECUTE )]} E NÃO O QUERY
+        // OBS:PRECISA USAR O COMANDO: {[( EXECUTE )]}E NAO O QUERY
         let result = await prisma.$executeRawUnsafe(sql)
 
         //validação para ver se o insert funcionou no BD
